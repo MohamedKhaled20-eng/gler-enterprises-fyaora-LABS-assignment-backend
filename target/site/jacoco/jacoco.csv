@@ -1,0 +1,14 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+screenplay-assignment,com.example.screenplay,ScreenplayAssignmentApplication,5,3,0,0,2,1,1,1,1,1
+screenplay-assignment,com.example.screenplay.config,RestClientConfig,0,37,0,0,0,9,0,2,0,2
+screenplay-assignment,com.example.screenplay.config,ForecastApiConfig,0,29,0,0,0,5,0,1,0,1
+screenplay-assignment,com.example.screenplay.dto,OpenMeteoResponse,0,6,0,0,0,1,0,1,0,1
+screenplay-assignment,com.example.screenplay.dto,ForecastRequest,0,15,0,0,0,1,0,1,0,1
+screenplay-assignment,com.example.screenplay.dto,ErrorResponse,0,21,0,0,0,1,0,1,0,1
+screenplay-assignment,com.example.screenplay.dto,OpenMeteoResponse.HourlyData,0,15,0,0,0,1,0,1,0,1
+screenplay-assignment,com.example.screenplay.exception,ExternalApiException,0,15,0,0,0,6,0,2,0,2
+screenplay-assignment,com.example.screenplay.exception,GlobalExceptionHandler,2,143,1,1,0,39,1,5,0,5
+screenplay-assignment,com.example.screenplay.controller,TextReplaceController,6,21,1,1,2,6,1,2,0,2
+screenplay-assignment,com.example.screenplay.controller,ForcastController,0,22,0,0,0,5,0,2,0,2
+screenplay-assignment,com.example.screenplay.service,TextReplaceService,0,74,0,6,0,18,0,5,0,2
+screenplay-assignment,com.example.screenplay.service,ForecastService,2,236,8,18,0,54,8,13,0,8

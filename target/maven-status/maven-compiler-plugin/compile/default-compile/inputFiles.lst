@@ -1,0 +1,16 @@
+/projects/src/cops/screenplay-assignment/src/main/java/com/example/screenplay/ScreenplayAssignmentApplication.java
+/projects/src/cops/screenplay-assignment/src/main/java/com/example/screenplay/config/ApiConfig.java
+/projects/src/cops/screenplay-assignment/src/main/java/com/example/screenplay/config/ErrorMessagesConfig.java
+/projects/src/cops/screenplay-assignment/src/main/java/com/example/screenplay/config/ForecastApiConfig.java
+/projects/src/cops/screenplay-assignment/src/main/java/com/example/screenplay/config/RestClientConfig.java
+/projects/src/cops/screenplay-assignment/src/main/java/com/example/screenplay/controller/ForcastController.java
+/projects/src/cops/screenplay-assignment/src/main/java/com/example/screenplay/controller/TextReplaceController.java
+/projects/src/cops/screenplay-assignment/src/main/java/com/example/screenplay/dto/ErrorResponse.java
+/projects/src/cops/screenplay-assignment/src/main/java/com/example/screenplay/dto/ForecastRequest.java
+/projects/src/cops/screenplay-assignment/src/main/java/com/example/screenplay/dto/OpenMeteoResponse.java
+/projects/src/cops/screenplay-assignment/src/main/java/com/example/screenplay/exception/ExternalApiException.java
+/projects/src/cops/screenplay-assignment/src/main/java/com/example/screenplay/exception/GlobalExceptionHandler.java
+/projects/src/cops/screenplay-assignment/src/main/java/com/example/screenplay/model/ForecastRecord.java
+/projects/src/cops/screenplay-assignment/src/main/java/com/example/screenplay/repository/ForecastRepository.java
+/projects/src/cops/screenplay-assignment/src/main/java/com/example/screenplay/service/ForecastService.java
+/projects/src/cops/screenplay-assignment/src/main/java/com/example/screenplay/service/TextReplaceService.java

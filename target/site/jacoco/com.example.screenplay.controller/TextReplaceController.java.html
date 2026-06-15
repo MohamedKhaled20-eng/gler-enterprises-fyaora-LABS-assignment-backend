@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TextReplaceController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">screenplay-assignment</a> &gt; <a href="index.source.html" class="el_package">com.example.screenplay.controller</a> &gt; <span class="el_source">TextReplaceController.java</span></div><h1>TextReplaceController.java</h1><pre class="source lang-java linenums">package com.example.screenplay.controller;
+
+import com.example.screenplay.config.ApiConfig;
+import com.example.screenplay.service.TextReplaceService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * REST Controller for text replacement operations.
+ * Handles character replacement in text strings.
+ * URL mappings are externalized to application.yml
+ */
+<span class="fc" id="L17">@Slf4j</span>
+@RestController
+@RequiredArgsConstructor
+public class TextReplaceController {
+
+    private final TextReplaceService textReplaceService;
+    private final ApiConfig apiConfig;
+
+    /**
+     * Replaces first and last characters of input text.
+     * GET /replace?text={value}
+     *
+     * @param text input text to process (optional parameter)
+     * @return processed text or empty response based on business rules
+     */
+    @GetMapping(&quot;/replace&quot;)
+    public ResponseEntity&lt;String&gt; replaceText(@RequestParam(value = &quot;text&quot;, required = false) String text) {
+<span class="fc" id="L34">        log.info(&quot;Received text replacement request&quot;);</span>
+
+<span class="fc" id="L36">        String result = textReplaceService.replaceCharacters(text);</span>
+
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">        if (result.isEmpty()) {</span>
+<span class="nc" id="L39">            log.debug(&quot;Returning empty response for 2-character input&quot;);</span>
+<span class="nc" id="L40">            return ResponseEntity.ok().build();</span>
+        }
+
+<span class="fc" id="L43">        log.debug(&quot;Successfully processed text replacement&quot;);</span>
+<span class="fc" id="L44">        return ResponseEntity.ok(result);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

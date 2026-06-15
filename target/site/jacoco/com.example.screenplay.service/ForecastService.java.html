@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ForecastService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">screenplay-assignment</a> &gt; <a href="index.source.html" class="el_package">com.example.screenplay.service</a> &gt; <span class="el_source">ForecastService.java</span></div><h1>ForecastService.java</h1><pre class="source lang-java linenums">package com.example.screenplay.service;
+
+import com.example.screenplay.config.ErrorMessagesConfig;
+import com.example.screenplay.config.ForecastApiConfig;
+import com.example.screenplay.dto.ForecastRequest;
+import com.example.screenplay.dto.OpenMeteoResponse;
+import com.example.screenplay.exception.ExternalApiException;
+import com.example.screenplay.model.ForecastRecord;
+import com.example.screenplay.repository.ForecastRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.IntStream;
+
+/**
+ * Service for processing weather forecast data.
+ * Implements best practices including:
+ * - Lombok for reduced boilerplate
+ * - Stream API for optimal performance (O(n) complexity)
+ * - Externalized configuration
+ * - Comprehensive error handling with custom messages
+ * - SLF4J logging
+ */
+<span class="fc" id="L28">@Slf4j</span>
+@Service
+@RequiredArgsConstructor
+public class ForecastService {
+
+    private final ForecastRepository repository;
+    private final RestClient restClient;
+    private final ForecastApiConfig apiConfig;
+    private final ErrorMessagesConfig errorMessagesConfig;
+
+    /**
+     * Processes forecast data from external API and saves to database.
+     * Time Complexity: O(n) where n is the number of hourly data points
+     * Space Complexity: O(1) as we only store aggregated max values
+     *
+     * @param request forecast request with date and field selection flags
+     * @return saved forecast record
+     * @throws ExternalApiException if API is unreachable or returns invalid data
+     */
+    public ForecastRecord processAndSaveForecast(ForecastRequest request) {
+<span class="fc" id="L48">        log.debug(&quot;Processing forecast request for date: {}&quot;, request.date());</span>
+
+<span class="fc" id="L50">        OpenMeteoResponse response = fetchForecastData();</span>
+<span class="fc" id="L51">        validateResponse(response);</span>
+
+<span class="fc" id="L53">        List&lt;String&gt; times = response.hourly().time();</span>
+<span class="fc" id="L54">        List&lt;Integer&gt; targetIndices = findTargetIndices(times, request.date());</span>
+
+<span class="fc" id="L56">        log.debug(&quot;Found {} matching time entries for date {}&quot;, targetIndices.size(), request.date());</span>
+
+        // Extract max values only for requested fields
+        // Using ternary operator for null-safe conditional assignment
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">        Double maxTemp = Boolean.TRUE.equals(request.addTemprature())</span>
+<span class="fc" id="L61">                ? findMaxValue(response.hourly().temperature_2m(), targetIndices)</span>
+<span class="pc" id="L62">                : null;</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        Double maxHumid = Boolean.TRUE.equals(request.addHumidity())</span>
+<span class="fc" id="L64">                ? findMaxValue(response.hourly().relative_humidity_2m(), targetIndices)</span>
+<span class="fc" id="L65">                : null;</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        Double maxWind = Boolean.TRUE.equals(request.addWindSpeed())</span>
+<span class="fc" id="L67">                ? findMaxValue(response.hourly().wind_speed_10m(), targetIndices)</span>
+<span class="fc" id="L68">                : null;</span>
+
+<span class="fc" id="L70">        ForecastRecord record = new ForecastRecord(</span>
+<span class="fc" id="L71">                LocalDate.parse(request.date()),</span>
+                maxTemp,
+                maxHumid,
+                maxWind
+        );
+
+<span class="fc" id="L77">        ForecastRecord savedRecord = repository.save(record);</span>
+<span class="fc" id="L78">        log.info(&quot;Successfully saved forecast record for date: {}&quot;, savedRecord.getDate());</span>
+
+<span class="fc" id="L80">        return savedRecord;</span>
+    }
+
+    /**
+     * Fetches forecast data from external weather API.
+     *
+     * @return OpenMeteoResponse containing hourly weather data
+     * @throws ExternalApiException if connection fails
+     */
+    private OpenMeteoResponse fetchForecastData() {
+        try {
+<span class="fc" id="L91">            log.debug(&quot;Fetching forecast data from external API: {}&quot;, apiConfig.getBaseUrl());</span>
+
+<span class="fc" id="L93">            OpenMeteoResponse response = restClient.get()</span>
+<span class="fc" id="L94">                    .uri(apiConfig.buildForecastUri())</span>
+<span class="fc" id="L95">                    .retrieve()</span>
+<span class="fc" id="L96">                    .body(OpenMeteoResponse.class);</span>
+
+<span class="fc" id="L98">            log.debug(&quot;Successfully fetched forecast data from external API&quot;);</span>
+<span class="fc" id="L99">            return response;</span>
+<span class="fc" id="L100">        } catch (Exception ex) {</span>
+<span class="fc" id="L101">            log.error(&quot;Failed to connect to external forecast API&quot;, ex);</span>
+<span class="fc" id="L102">            ErrorMessagesConfig.ErrorDetail errorDetail =</span>
+<span class="fc" id="L103">                    errorMessagesConfig.getForecast().get(&quot;api-unreachable&quot;);</span>
+<span class="fc" id="L104">            throw new ExternalApiException(</span>
+<span class="fc" id="L105">                    errorDetail.getMessage(),</span>
+<span class="fc" id="L106">                    errorDetail.getCode(),</span>
+                    ex
+            );
+        }
+    }
+
+    /**
+     * Validates that the API response contains required data.
+     *
+     * @param response the API response to validate
+     * @throws ExternalApiException if response is null or incomplete
+     */
+    private void validateResponse(OpenMeteoResponse response) {
+<span class="pc bpc" id="L119" title="2 of 6 branches missed.">        if (response == null || response.hourly() == null || response.hourly().time() == null) {</span>
+<span class="fc" id="L120">            log.error(&quot;Received empty or invalid response from external API&quot;);</span>
+<span class="fc" id="L121">            ErrorMessagesConfig.ErrorDetail errorDetail =</span>
+<span class="fc" id="L122">                    errorMessagesConfig.getForecast().get(&quot;empty-data&quot;);</span>
+<span class="fc" id="L123">            throw new ExternalApiException(</span>
+<span class="fc" id="L124">                    errorDetail.getMessage(),</span>
+<span class="fc" id="L125">                    errorDetail.getCode()</span>
+            );
+        }
+<span class="fc" id="L128">    }</span>
+
+    /**
+     * Finds indices of time entries matching the target date.
+     * Uses Stream API for efficient filtering.
+     * Time Complexity: O(n) where n is the size of times list
+     *
+     * @param times list of timestamp strings
+     * @param targetDate date string to match (YYYY-MM-DD format)
+     * @return list of matching indices
+     */
+    private List&lt;Integer&gt; findTargetIndices(List&lt;String&gt; times, String targetDate) {
+<span class="fc" id="L140">        return IntStream.range(0, times.size())</span>
+<span class="pc bpc" id="L141" title="1 of 4 branches missed.">                .filter(i -&gt; times.get(i) != null &amp;&amp; times.get(i).startsWith(targetDate))</span>
+<span class="fc" id="L142">                .boxed()</span>
+<span class="fc" id="L143">                .toList();</span>
+    }
+
+    /**
+     * Finds the maximum value from a list at specified indices.
+     * Uses Stream API for functional and efficient processing.
+     * Time Complexity: O(m) where m is the size of indices list
+     *
+     * @param values list of values to search
+     * @param indices list of indices to consider
+     * @return maximum value or null if no valid values found
+     */
+    private Double findMaxValue(List&lt;Double&gt; values, List&lt;Integer&gt; indices) {
+<span class="pc bpc" id="L156" title="2 of 6 branches missed.">        if (values == null || indices == null || indices.isEmpty()) {</span>
+<span class="fc" id="L157">            return null;</span>
+        }
+
+<span class="fc" id="L160">        return indices.stream()</span>
+<span class="pc bpc" id="L161" title="2 of 4 branches missed.">                .filter(i -&gt; i &lt; values.size() &amp;&amp; values.get(i) != null)</span>
+<span class="fc" id="L162">                .map(values::get)</span>
+<span class="fc" id="L163">                .max(Double::compareTo)</span>
+<span class="fc" id="L164">                .orElse(null);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,8 @@
+com/example/screenplay/controller/ForcastControllerTest.class
+com/example/screenplay/repository/ForecastRepositoryTest.class
+com/example/screenplay/model/ForecastRecordTest.class
+com/example/screenplay/integration/TextReplaceApiIntegrationTest.class
+com/example/screenplay/integration/ForecastApiIntegrationTest.class
+com/example/screenplay/service/TextReplaceServiceTest.class
+com/example/screenplay/service/ForecastServiceTest.class
+com/example/screenplay/exception/GlobalExceptionHandlerTest.class

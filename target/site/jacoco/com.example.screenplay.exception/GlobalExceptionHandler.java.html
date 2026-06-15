@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GlobalExceptionHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">screenplay-assignment</a> &gt; <a href="index.source.html" class="el_package">com.example.screenplay.exception</a> &gt; <span class="el_source">GlobalExceptionHandler.java</span></div><h1>GlobalExceptionHandler.java</h1><pre class="source lang-java linenums">package com.example.screenplay.exception;
+
+import com.example.screenplay.config.ErrorMessagesConfig;
+import com.example.screenplay.dto.ErrorResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.time.LocalDateTime;
+
+/**
+ * Global exception handler for the application.
+ * Uses centralized error messages from configuration.
+ * Follows best practices from agentdesktop project.
+ */
+<span class="fc" id="L22">@Slf4j</span>
+@RestControllerAdvice
+@RequiredArgsConstructor
+public class GlobalExceptionHandler {
+
+    private final ErrorMessagesConfig errorMessagesConfig;
+
+    /**
+     * Handles IllegalArgumentException (text validation errors).
+     * Returns 400 Bad Request with no body.
+     *
+     * @return empty bad request response
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity&lt;Void&gt; handleIllegalArgument(IllegalArgumentException ex) {
+<span class="fc" id="L37">        log.warn(&quot;Bad request due to illegal argument: {}&quot;, ex.getMessage());</span>
+<span class="fc" id="L38">        return ResponseEntity.badRequest().build();</span>
+    }
+
+    /**
+     * Handles ExternalApiException (upstream service failures).
+     * Returns 502 Bad Gateway with detailed error information.
+     *
+     * @param ex the exception
+     * @param request the HTTP request
+     * @return error response with 502 status
+     */
+    @ExceptionHandler(ExternalApiException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleExternalApi(ExternalApiException ex, HttpServletRequest request) {
+<span class="fc" id="L51">        log.error(&quot;External API error: {} [Code: {}]&quot;, ex.getMessage(), ex.getErrorCode(), ex);</span>
+
+<span class="fc" id="L53">        ErrorMessagesConfig.ErrorDetail errorDetail =</span>
+<span class="fc" id="L54">                errorMessagesConfig.getGeneric().get(&quot;upstream-error&quot;);</span>
+
+<span class="fc" id="L56">        ErrorResponse error = ErrorResponse.builder()</span>
+<span class="fc" id="L57">                .timestamp(LocalDateTime.now())</span>
+<span class="fc" id="L58">                .status(HttpStatus.BAD_GATEWAY.value())</span>
+<span class="fc" id="L59">                .error(errorDetail.getMessage())</span>
+<span class="fc" id="L60">                .errorCode(ex.getErrorCode())</span>
+<span class="fc" id="L61">                .message(ex.getMessage())</span>
+<span class="fc" id="L62">                .path(request.getRequestURI())</span>
+<span class="fc" id="L63">                .build();</span>
+
+<span class="fc" id="L65">        return new ResponseEntity&lt;&gt;(error, HttpStatus.BAD_GATEWAY);</span>
+    }
+
+    /**
+     * Handles validation errors (missing or invalid request fields).
+     * Returns 400 Bad Request with validation error details.
+     *
+     * @param request the HTTP request
+     * @return error response with 400 status
+     */
+    @ExceptionHandler({MethodArgumentNotValidException.class, HttpMessageNotReadableException.class})
+    public ResponseEntity&lt;ErrorResponse&gt; handleValidation(HttpServletRequest request) {
+<span class="fc" id="L77">        log.warn(&quot;Validation error for request: {}&quot;, request.getRequestURI());</span>
+
+<span class="fc" id="L79">        ErrorMessagesConfig.ErrorDetail errorDetail =</span>
+<span class="fc" id="L80">                errorMessagesConfig.getValidation().get(&quot;missing-fields&quot;);</span>
+
+<span class="fc" id="L82">        ErrorResponse error = ErrorResponse.builder()</span>
+<span class="fc" id="L83">                .timestamp(LocalDateTime.now())</span>
+<span class="fc" id="L84">                .status(HttpStatus.BAD_REQUEST.value())</span>
+<span class="fc" id="L85">                .error(errorDetail.getMessage())</span>
+<span class="fc" id="L86">                .errorCode(errorDetail.getCode())</span>
+<span class="fc" id="L87">                .message(errorDetail.getDescription())</span>
+<span class="fc" id="L88">                .path(request.getRequestURI())</span>
+<span class="fc" id="L89">                .build();</span>
+
+<span class="fc" id="L91">        return new ResponseEntity&lt;&gt;(error, HttpStatus.BAD_REQUEST);</span>
+    }
+
+    /**
+     * Handles all unexpected exceptions.
+     * Returns 500 Internal Server Error with generic error details.
+     *
+     * @param ex the exception
+     * @param request the HTTP request
+     * @return error response with 500 status
+     */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleAllUnexpected(Exception ex, HttpServletRequest request) {
+<span class="fc" id="L104">        log.error(&quot;Unexpected error occurred: &quot;, ex);</span>
+
+<span class="fc" id="L106">        ErrorMessagesConfig.ErrorDetail errorDetail =</span>
+<span class="fc" id="L107">                errorMessagesConfig.getGeneric().get(&quot;internal-error&quot;);</span>
+
+<span class="fc" id="L109">        ErrorResponse error = ErrorResponse.builder()</span>
+<span class="fc" id="L110">                .timestamp(LocalDateTime.now())</span>
+<span class="fc" id="L111">                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())</span>
+<span class="fc" id="L112">                .error(errorDetail.getMessage())</span>
+<span class="fc" id="L113">                .errorCode(errorDetail.getCode())</span>
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">                .message(ex.getMessage() != null ? ex.getMessage() : errorDetail.getDescription())</span>
+<span class="fc" id="L115">                .path(request.getRequestURI())</span>
+<span class="fc" id="L116">                .build();</span>
+
+<span class="fc" id="L118">        return new ResponseEntity&lt;&gt;(error, HttpStatus.INTERNAL_SERVER_ERROR);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

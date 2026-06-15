@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TextReplaceService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">screenplay-assignment</a> &gt; <a href="index.source.html" class="el_package">com.example.screenplay.service</a> &gt; <span class="el_source">TextReplaceService.java</span></div><h1>TextReplaceService.java</h1><pre class="source lang-java linenums">package com.example.screenplay.service;
+
+import com.example.screenplay.config.ErrorMessagesConfig;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+/**
+ * Service for text replacement operations.
+ * Implements character replacement logic with validation.
+ * Time Complexity: O(1) for all operations (constant time substring operations)
+ * Space Complexity: O(n) where n is the length of input string
+ */
+<span class="fc" id="L14">@Slf4j</span>
+@Service
+@RequiredArgsConstructor
+public class TextReplaceService {
+
+    private final ErrorMessagesConfig errorMessagesConfig;
+
+    /**
+     * Replaces first and last characters of text with * and $ respectively.
+     * Business rules:
+     * - null input: throws IllegalArgumentException
+     * - length &lt; 2: throws IllegalArgumentException
+     * - length = 2: returns empty string
+     * - length &gt; 2: replaces first char with * and last char with $
+     *
+     * @param text input string to process
+     * @return processed string with replaced characters
+     * @throws IllegalArgumentException if text is null or too short
+     */
+    public String replaceCharacters(String text) {
+<span class="fc" id="L34">        log.debug(&quot;Processing text replacement for input: {}&quot;, text);</span>
+
+<span class="fc bfc" id="L36" title="All 2 branches covered.">        if (text == null) {</span>
+<span class="fc" id="L37">            log.warn(&quot;Null text provided for replacement&quot;);</span>
+<span class="fc" id="L38">            ErrorMessagesConfig.ErrorDetail errorDetail =</span>
+<span class="fc" id="L39">                    errorMessagesConfig.getTextReplace().get(&quot;null-input&quot;);</span>
+<span class="fc" id="L40">            throw new IllegalArgumentException(errorDetail.getMessage());</span>
+        }
+
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        if (text.length() &lt; 2) {</span>
+<span class="fc" id="L44">            log.warn(&quot;Text too short for replacement: length = {}&quot;, text.length());</span>
+<span class="fc" id="L45">            ErrorMessagesConfig.ErrorDetail errorDetail =</span>
+<span class="fc" id="L46">                    errorMessagesConfig.getTextReplace().get(&quot;too-short&quot;);</span>
+<span class="fc" id="L47">            throw new IllegalArgumentException(errorDetail.getMessage());</span>
+        }
+
+<span class="fc bfc" id="L50" title="All 2 branches covered.">        if (text.length() == 2) {</span>
+<span class="fc" id="L51">            log.debug(&quot;Text length is 2, returning empty string&quot;);</span>
+<span class="fc" id="L52">            return &quot;&quot;;</span>
+        }
+
+<span class="fc" id="L55">        String result = &quot;*&quot; + text.substring(1, text.length() - 1) + &quot;$&quot;;</span>
+<span class="fc" id="L56">        log.debug(&quot;Successfully replaced characters: {} -&gt; {}&quot;, text, result);</span>
+<span class="fc" id="L57">        return result;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,84 @@
+spring:
+  application:
+    name: screenplay-assignment
+  datasource:
+    url: jdbc:h2:mem:screenplaydb;DB_CLOSE_DELAY=-1;MODE=LEGACY
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+# API Configuration
+api:
+  base-path: /api/v1
+  endpoints:
+    text-replace: /replace
+    forecast: /forcast
+
+# External Services Configuration
+forecast:
+  api:
+    base-url: https://api.open-meteo.com
+    endpoints:
+      current-forecast: /v1/forecast
+    params:
+      latitude: 52.52
+      longitude: 13.41
+      hourly: temperature_2m,relative_humidity_2m,wind_speed_10m
+    timeout:
+      connect: 5000
+      read: 10000
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    com.example.screenplay: DEBUG
+    org.springframework.web: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+# Error Messages Configuration
+errors:
+  text-replace:
+    null-input:
+      code: TR001
+      message: Text cannot be null
+      description: The input text parameter is required and cannot be null
+    too-short:
+      code: TR002
+      message: Text is too short
+      description: The input text must be at least 2 characters long
+  forecast:
+    api-unreachable:
+      code: FC001
+      message: Connection to the upstream is unreachable
+      description: Unable to connect to the external weather API service
+    empty-data:
+      code: FC002
+      message: Upstream API returned empty data
+      description: The external weather API returned no data or incomplete response
+  validation:
+    missing-fields:
+      code: VAL001
+      message: Missing or invalid mandatory fields
+      description: One or more required fields are missing or contain invalid values
+  generic:
+    internal-error:
+      code: SYS001
+      message: Internal Server Error
+      description: An unexpected error occurred while processing the request
+    upstream-error:
+      code: SYS002
+      message: Upstream API Unreachable
+      description: External service is currently unavailable

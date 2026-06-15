@@ -1,0 +1,8 @@
+/projects/src/cops/screenplay-assignment/src/test/java/com/example/screenplay/controller/ForcastControllerTest.java
+/projects/src/cops/screenplay-assignment/src/test/java/com/example/screenplay/exception/GlobalExceptionHandlerTest.java
+/projects/src/cops/screenplay-assignment/src/test/java/com/example/screenplay/integration/ForecastApiIntegrationTest.java
+/projects/src/cops/screenplay-assignment/src/test/java/com/example/screenplay/integration/TextReplaceApiIntegrationTest.java
+/projects/src/cops/screenplay-assignment/src/test/java/com/example/screenplay/model/ForecastRecordTest.java
+/projects/src/cops/screenplay-assignment/src/test/java/com/example/screenplay/repository/ForecastRepositoryTest.java
+/projects/src/cops/screenplay-assignment/src/test/java/com/example/screenplay/service/ForecastServiceTest.java
+/projects/src/cops/screenplay-assignment/src/test/java/com/example/screenplay/service/TextReplaceServiceTest.java
