@@ -4,7 +4,6 @@
 
 - Java 17
 - Maven 3.x
-- Any IDE (IntelliJ IDEA recommended)
 
 ## 🚀 Quick Start
 
@@ -143,7 +142,6 @@ curl -X POST http://localhost:8080/api/v1/forcast \
 }
 ```
 
-## 🏗️ Architecture & Best Practices
 
 ### Project Structure
 
@@ -177,64 +175,6 @@ screenplay-assignment/
 │   └── error-messages.yml         # Error codes and messages
 └── src/test/java/                 # Comprehensive tests
 ```
-
-### Key Improvements Implemented
-
-#### 1. Lombok Integration
-- `@Data` - Auto-generates getters, setters, toString, equals, hashCode
-- `@RequiredArgsConstructor` - Constructor injection for final fields
-- `@Slf4j` - Logger instance
-- `@Builder` - Builder pattern for DTOs
-- `@AllArgsConstructor` / `@NoArgsConstructor` - Constructors for JPA
-
-#### 2. Stream API & Performance
-```java
-// O(n) time complexity using streams
-private List<Integer> findTargetIndices(List<String> times, String targetDate) {
-    return IntStream.range(0, times.size())
-            .filter(i -> times.get(i) != null && times.get(i).startsWith(targetDate))
-            .boxed()
-            .toList();
-}
-
-// Efficient max finding with streams
-private Double findMaxValue(List<Double> values, List<Integer> indices) {
-    return indices.stream()
-            .filter(i -> i < values.size() && values.get(i) != null)
-            .map(values::get)
-            .max(Double::compareTo)
-            .orElse(null);
-}
-```
-
-#### 3. YAML-Based Configuration
-
-**application.yml:**
-- Database settings
-- API endpoints (externalized for easy changes)
-- External service URLs
-- Timeouts and performance tuning
-- Logging configuration
-
-**error-messages.yml:**
-- Error codes (e.g., FC001, VAL001)
-- Error messages
-- Detailed descriptions
-- Centralized error management
-
-#### 4. Comprehensive Logging
-Every layer includes appropriate logging:
-- `DEBUG` - Detailed processing steps
-- `INFO` - Important business events
-- `WARN` - Warning conditions
-- `ERROR` - Error scenarios with stack traces
-
-#### 5. Error Handling with Codes
-All errors include:
-- Error code (for tracking/monitoring)
-- User-friendly message
-- Technical description
-- Timestamp and request path
 
 ## 🧪 Testing Strategy
 
@@ -296,36 +236,6 @@ forecast:
       read: 10000
 ```
 
-## 📊 Code Quality
-
-### Complexity Analysis
-- **Text Replacement**: O(1) time, O(n) space
-- **Forecast Processing**: O(n) time, O(1) space
-- **Max Value Finding**: O(m) time where m = number of indices
-
-### Clean Code Practices
-✅ Single Responsibility Principle
-✅ Dependency Injection
-✅ Separation of Concerns
-✅ Meaningful naming conventions
-✅ Comprehensive JavaDoc comments
-✅ Defensive programming
-
-## 🐛 Troubleshooting
-
-### Port Already in Use
-```bash
-# Change port in application.yml
-server:
-  port: 8081
-```
-
-### External API Issues
-Check connectivity:
-```bash
-curl "https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&hourly=temperature_2m"
-```
-
 ### Build Issues
 ```bash
 # Clean and rebuild
@@ -334,35 +244,6 @@ mvn clean install -U
 # Clear local Maven cache
 rm -rf ~/.m2/repository/com/example/screenplay-assignment
 ```
-
-## 📝 Development Notes
-
-### Adding New Error Messages
-1. Add entry to `error-messages.yml`
-2. Use in code via `ErrorMessagesConfig`
-```java
-ErrorDetail error = errorMessagesConfig.getForecast().get("new-error");
-throw new CustomException(error.getMessage(), error.getCode());
-```
-
-### Adding New Endpoints
-1. Add mapping to `application.yml` under `api.endpoints`
-2. Use in controller: `@GetMapping("${api.endpoints.new-endpoint}")`
-
-## 🎓 Learning Resources
-
-This project demonstrates patterns from:
-- Spring Boot Best Practices
-- Clean Code by Robert C. Martin
-- Effective Java by Joshua Bloch
-- Enterprise Integration Patterns
-
-## 📄 License
-
-This is an assignment project for educational purposes.
-
----
-
 **Author:** Screenplay Assignment Project
 **Version:** 0.0.1-SNAPSHOT
 **Spring Boot:** 3.5.5
